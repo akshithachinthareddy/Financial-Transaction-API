@@ -12,7 +12,7 @@ This project is a MuleSoft application that processes financial transactions, in
 
 1. Clone the repository:
     ```sh
-    git clone https://github.com/your-username/financial-transaction-processing.git
+    git clone https://github.com/akshithachinthareddy/financial-transaction-processing.git
     cd financial-transaction-processing
     ```
 
