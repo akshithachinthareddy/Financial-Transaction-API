@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:munit="http://www.mulesoft.org/schema/mule/munit" xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd">
+	
+	<munit:config name="TransactionFlowTestSuite" />
+
+	<!-- Test Case for createTransactionFlow -->
+	<munit:test name="createTransactionFlowTest" description="Test create transaction flow">
+	    <munit:execution>
+	        <set-payload value="payload = 'amount': 100.00, 'currency': 'USD', 'description': 'Payment for invoice #123'" doc:name="Set Payload" doc:id="8388b388-1d9e-4539-9103-da23f7241b37" />
+			<flow-ref name="createTransactionFlow" doc:name="Flow Reference"/>
+	    </munit:execution>
+	    <munit:validation>
+	        <munit-tools:assert-that expression="#[payload.status]" is="#[MunitTools::equalTo('completed')]" doc:name="Assert Status"/>
+	        <munit-tools:assert-that expression="#[payload.transactionId]" is="#[MunitTools::equalTo('abc123')]" doc:name="Assert Transaction ID"/>
+	    </munit:validation>
+	</munit:test>
+	<munit:test name="processRefundFlowTest" doc:id="786666e0-f2ae-4a60-b785-a0f17b699ddf" >
+		<munit:execution >
+			<set-payload value="payload = 'transactionId': 'abc123', 'amount': 100.00" doc:name="Set Payload" doc:id="1b3bfaef-e364-40a1-9f72-455eff3bb13b" />
+			<flow-ref doc:name="Flow Reference" doc:id="9871f085-9d92-4d5a-8e70-d0c945f04933" name="processRefundFlow"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="b66ed7cc-29af-4f5e-905e-5bd5ed671404" is='#[&lt;munit:validate expression="#[payload.status]" expectedValue="processed"/&gt;&#10;&lt;munit:validate expression="#[payload.refundId]" expectedValue="xyz789"/&gt;]'/>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="reconcileFlowTest" doc:id="f5e01b4c-e4bb-4d4e-94b8-c0286cbec597" >
+		<munit:execution >
+			<flow-ref doc:name="Flow Reference" doc:id="f9a303dc-5307-4557-8f3e-e5e5a7aacd96" name="reconcileFlow"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="67fd90c8-029d-492d-8357-8ece64cfdd60" is='#[&lt;munit:validate expression="#[payload.status]" expectedValue="success"/&gt;&#10;&lt;munit:validate expression="#[payload.message]" expectedValue="Reconciliation complete"/&gt;]'/>
+		</munit:validation>
+	</munit:test>
+
+</mule>
+

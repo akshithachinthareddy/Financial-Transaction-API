@@ -1,0 +1,57 @@
+#%RAML 1.0
+title: Financial Transaction API
+baseUri: http://localhost:8081/api
+
+/transactions:
+  post:
+    description: Create a new financial transaction
+    body:
+      application/json:
+        example: |
+          {
+            "amount": 100.00,
+            "currency": "USD",
+            "description": "Payment for invoice #123"
+          }
+    responses:
+      200:
+        body:
+          application/json:
+            example: |
+              {
+                "transactionId": "abc123",
+                "status": "completed"
+              }
+
+/refunds:
+  post:
+    description: Process a refund
+    body:
+      application/json:
+        example: |
+          {
+            "transactionId": "abc123",
+            "amount": 100.00
+          }
+    responses:
+      200:
+        body:
+          application/json:
+            example: |
+              {
+                "refundId": "xyz789",
+                "status": "processed"
+              }
+
+/reconcile:
+  get:
+    description: Reconcile transactions
+    responses:
+      200:
+        body:
+          application/json:
+            example: |
+              {
+                "status": "success",
+                "message": "Reconciliation complete"
+              }

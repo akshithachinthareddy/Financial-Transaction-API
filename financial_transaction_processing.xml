@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+      xmlns:json="http://www.mulesoft.org/schema/mule/json" 
+      xmlns:http="http://www.mulesoft.org/schema/mule/http"
+      xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" 
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+      xsi:schemaLocation="
+        http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+        http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/json/current/mule-json.xsd
+        http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+        http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+    
+    <http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="a22bd800-6bda-4502-8f28-5e148eeeb685" >
+        <http:listener-connection host="0.0.0.0" port="8081" />
+    </http:listener-config>
+
+    <flow name="processRefundFlow" doc:id="b9cd9510-75a9-4b68-a9b0-303d56dc4b6f">
+        <http:listener doc:name="Listener" config-ref="HTTP_Listener_config" path="/api/refunds"/>
+        <json:json-to-object-transformer returnClass="java.util.HashMap" doc:name="JSON to Object"/>
+        <try doc:name="Try">
+            <set-variable variableName="refundResponse" value="#[{'refundId': 'xyz789', 'status': 'processed'}]" doc:name="Mock Refund Response"/>
+            <json:object-to-json-transformer doc:name="Object to JSON"/>
+            <logger level="INFO" doc:name="Logger" message="Refund processed successfully: #[payload]"/>
+            <catch doc:name="Catch">
+                <logger level="ERROR" doc:name="Logger" message="Error: #[error.errorMessage]"/>
+                <set-variable variableName="errorMessage" value="#[error.errorMessage]" doc:name="Set Error Message"/>
+                <json:object-to-json-transformer doc:name="Object to JSON"/>
+            </catch>
+        </try>
+    </flow>
+
+    <flow name="reconcileFlow" doc:id="becb72eb-c84f-463a-a027-de816890d3a9">
+        <http:listener doc:name="Listener" config-ref="HTTP_Listener_config" path="/api/reconcile"/>
+        <try doc:name="Try">
+            <set-variable variableName="reconcileResponse" value="#[{'status': 'success', 'message': 'Reconciliation complete'}]" doc:name="Mock Reconcile Response"/>
+            <json:object-to-json-transformer doc:name="Object to JSON"/>
+            <logger level="INFO" doc:name="Logger" message="Reconciliation completed successfully: #[payload]"/>
+            <catch doc:name="Catch">
+                <logger level="ERROR" doc:name="Logger" message="Error: #[error.errorMessage]"/>
+                <set-variable variableName="errorMessage" value="#[error.errorMessage]" doc:name="Set Error Message"/>
+                <json:object-to-json-transformer doc:name="Object to JSON"/>
+            </catch>
+        </try>
+    </flow>
+
+</mule>
